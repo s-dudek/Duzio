@@ -5,10 +5,12 @@
   "description": "Duzio – Kalorien zählen, Rezepte, Einkaufsliste (nach dem Vorbild von Yazio)",
   "scripts": {
     "vorschau": "node demo/build.mjs",
-    "supabase": "esbuild tools/supabase-entry.js --bundle --format=esm --minify --platform=browser --outfile=js/vendor/supabase.js"
+    "supabase": "esbuild tools/supabase-entry.js --bundle --format=esm --minify --platform=browser --outfile=js/vendor/supabase.js",
+    "zxing": "esbuild tools/zxing-entry.js --bundle --format=esm --minify --platform=browser --banner:js=\"/* ZXing (@zxing/library 0.23.0), Apache License 2.0 – https://github.com/zxing-js/library */\" --outfile=js/vendor/zxing.js"
   },
   "devDependencies": {
     "@supabase/supabase-js": "2.118.0",
+    "@zxing/library": "^0.23.0",
     "acorn": "^8.19.0",
     "acorn-walk": "^8.3.5",
     "esbuild": "0.24.0"

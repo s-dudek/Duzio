@@ -25,15 +25,16 @@ Bei Gestaltungsfragen dort nachsehen (`style.css`, `CLAUDE.md`), Änderungen am 
 - Sauberer, gut gegliederter Code ohne Wirrwarr: kleine Module, sprechende Namen, kurze deutsche Kommentare, keine toten Reste. Auf Effizienz achten.
 
 ## Aufbau (kein Build, ES-Module direkt ausgeliefert)
-- `index.html`, `style.css` (nach Bereichen gegliedert, Farben in `:root`), `js/*.js`, `js/vendor/supabase.js` (lokal gebündelt, `npm run supabase`).
+- `index.html`, `style.css` (nach Bereichen gegliedert, Farben in `:root`), `js/*.js`, `js/vendor/supabase.js` (lokal gebündelt, `npm run supabase`),
+  `js/vendor/zxing.js` (Barcode-Erkennung, Apache 2.0, `npm run zxing`).
 - Layout wie Übersicht: unter 1024 px Smartphone/Tablet (dunkelgrüne Kopfleiste 44 px, Leiste unten mit Aktionen, Steuerknopf unten rechts:
   tippen = Startseite), ab 1024 px Desktop mit Seitenleiste (`isDesktop()`), Aktionen rechts in der Kopfleiste.
 - Fenster (Sheets, `sheet.js`): oben rechts runde Knöpfe aus `sheetActs()` – Bearbeiten, Speichern ✓, Schließen ✕, Löschen. Keine Knöpfe unten.
 - Keine kleinen Beschreibungs-/Hinweistexte auf den Seiten.
 - Module: `core.js` (Zustand, Helfer), `data.js` (Laden/Prüfen/Speichern), `nutri.js` (Bedarf nach Mifflin-St Jeor × Aktivität ± Ziel,
   Summen, Umrechnen), `widgets.js` (kcal-Ring, Makro-Balken, Wasser), `home.js` (Kacheln), `diary.js` (Tagebuch), `food-search.js`
-  (Eintragen: Suche, Menge, Eintrag bearbeiten, kcal direkt), `off.js` (Open Food Facts), `barcode.js` (Kamera mit BarcodeDetector,
-  sonst Nummer eintippen – am iPhone kann Safari keinen Barcode erkennen), `foods.js` (Lebensmittel), `recipes.js` (Rezepte, Einplanen,
+  (Eintragen: Suche, Menge, Eintrag bearbeiten, kcal direkt), `off.js` (Open Food Facts), `barcode.js` (Kamera: BarcodeDetector des Browsers,
+  sonst ZXing aus `js/vendor/zxing.js` – nur EAN/UPC, lokal gebündelt mit `npm run zxing`, erst beim Scannen geladen; so geht es auch am iPhone), `foods.js` (Lebensmittel), `recipes.js` (Rezepte, Einplanen,
   Bearbeiten), `shopping.js` (Einkaufsliste, aus dem Plan), `progress.js` (Gewicht, Woche), `profile.js` (Profil & Ziele), `import.js` (Code einfügen),
   `actions.js` (alle Klicks über `data-act`), `render.js`, `nav.js`, `control.js`, `auth.js`, `splash.js`, `loader.js`, `icons.js`.
 - Startseite: Kacheln wie in der Übersicht (`.mt`, Größen s/m/l, Akzentfarbe `--ac`), feste Reihenfolge.
@@ -74,5 +75,5 @@ Abteilungen: Obst & Gemüse, Brot & Backwaren, Kühlregal, Fleisch & Fisch, Tief
 
 ## Stand und offene Punkte (November 2026)
 - Version 1: Tagebuch, Eintragen, Open Food Facts, Barcode, Lebensmittel, Rezepte, Einplanen, Einkaufsliste, Fortschritt, Profil, Code-Import.
-- Ideen für später: Kacheln der Startseite bearbeiten (wie Übersicht), Barcode-Scan am iPhone (eigene Erkennung), Rezept-Fotos,
+- Ideen für später: Kacheln der Startseite bearbeiten (wie Übersicht), Rezept-Fotos,
   Verbindung zur Übersicht (Wochenplan/Einkauf), Intervallfasten, Aktivitäten/Training als verbrannte kcal.
