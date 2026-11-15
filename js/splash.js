@@ -1,4 +1,4 @@
-// Startbild: Dudek-Zeichen als laufendes Ladesymbol hell auf dunkel (loader.js). Zum Schluss löst es sich weich auf:
+// Startbild: Duzio-Zeichen als laufendes Ladesymbol hell auf dunkel (loader.js). Zum Schluss löst es sich weich auf:
 // der laufende Abschnitt verschwindet, das Zeichen steht kurz vollständig da, dann wird es weit, unscharf und durchsichtig –
 // wie Nebel, der sich verzieht –, während der dunkle Grund ausblendet und die App freigibt. Läuft einmal pro App-Start.
 import { LOADER } from './loader.js';

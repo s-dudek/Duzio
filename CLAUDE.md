@@ -38,6 +38,9 @@ Bei Gestaltungsfragen dort nachsehen (`style.css`, `CLAUDE.md`), Änderungen am 
   sonst ZXing aus `js/vendor/zxing.js` – nur EAN/UPC, lokal gebündelt mit `npm run zxing`, erst beim Scannen geladen; so geht es auch am iPhone), `foods.js` (Lebensmittel), `recipes.js` (Rezepte, Einplanen,
   Bearbeiten), `shopping.js` (Einkaufsliste, aus dem Plan), `progress.js` (Gewicht, Woche), `profile.js` (Profil & Ziele), `import.js` (Code einfügen),
   `actions.js` (alle Klicks über `data-act`), `render.js`, `nav.js`, `control.js`, `auth.js`, `splash.js`, `loader.js`, `icons.js`.
+- Logo: Duzio-Zeichen von Simon (Apfel oben, links Melone, rechts Zitronenscheibe; aufgebaut auf dem Dudek-Zeichen).
+  Original `icons/logo.svg`, im Code `LOGO_MARK` (`icons.js`), Ladesymbol als Linie mit Stiel und Blatt (`loader.js`),
+  App-Icons Salbei auf Dunkelgrün. Nicht verändern ohne Simons Vorlage.
 - Startseite: Kacheln wie in der Übersicht (`.mt`, Größen s/m/l, Akzentfarbe `--ac`), feste Reihenfolge.
 - Tagebuch-Einträge speichern die Nährwerte als Kopie (ändern sich nicht, wenn das Lebensmittel später geändert wird).
   Einträge an zukünftigen Tagen sind „geplant“ (`planned`): zählen nicht zur Tagessumme, sind Grundlage für „Einkauf → Aus Plan“;
