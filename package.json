@@ -1,0 +1,16 @@
+{
+  "name": "duzio",
+  "private": true,
+  "type": "module",
+  "description": "Duzio – Kalorien zählen, Rezepte, Einkaufsliste (nach dem Vorbild von Yazio)",
+  "scripts": {
+    "vorschau": "node demo/build.mjs",
+    "supabase": "esbuild tools/supabase-entry.js --bundle --format=esm --minify --platform=browser --outfile=js/vendor/supabase.js"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "2.118.0",
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5",
+    "esbuild": "0.24.0"
+  }
+}
