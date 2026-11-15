@@ -6,6 +6,7 @@ import { diaryDay } from './diary.js';
 import { openAmount, openFoodSearch } from './food-search.js';
 import { openFoodEditor } from './foods.js';
 import { openImport } from './import.js';
+import { openMeal, openMealEditor } from './meals.js';
 import { navigate } from './nav.js';
 import { logout, openSettings } from './profile.js';
 import { openRecipe, openRecipeEditor, recipeQuery, setRecipeTab } from './recipes.js';
@@ -32,6 +33,8 @@ const ACTS = {
   recipe: (id) => openRecipe(id),
   'recipe-tab': (id) => setRecipeTab(id),
   'new-recipe': () => openRecipeEditor(),
+  meal: (id) => openMeal(id),
+  'new-meal': () => openMealEditor(),
   import: openImport,
   'new-food': () => openFoodEditor(null),
   food: (id) => { const f = foodById(id); if (f) openFoodEditor(f); },

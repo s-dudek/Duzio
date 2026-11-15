@@ -1,7 +1,7 @@
 // Nachbau von Supabase für die Vorschau: Daten liegen nur in diesem Browser.
 // Zugriffsregel wie in supabase-setup.sql: jede Person sieht nur eigene Zeilen (owner_id).
 (function () {
-  const DB_KEY = 'duzio-demo-db-v1', SESSION_KEY = 'duzio-demo-session-v1';
+  const DB_KEY = 'duzio-demo-db-v2', SESSION_KEY = 'duzio-demo-session-v1';
   const ls = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch {} },
@@ -44,6 +44,10 @@
     return {
       duzio_profile: [{ owner_id: S, sex: 'm', birth_year: 2000, height_cm: 175, activity: 1.55, goal: 'gain', goal_kg: 78, kcal_goal: null, macro: { c: 45, p: 30, f: 25 }, water_goal: 2500, updated_at: now() }],
       duzio_foods: foods, duzio_recipes: recipes, duzio_entries: entries,
+      duzio_meals: [
+        { id: 'm-bowl', owner_id: S, title: 'Hähnchen-Reis-Bowl', grams: 440, kcal: 584, protein: 57, fat: 9, carbs: 69, recipe_id: 'r-bowl', fav: true, items: [{ name: 'Hühnerbrust', label: '200 g' }, { name: 'Basmatireis', label: '75 g' }, { name: 'Brokkoli', label: '150 g' }], created_at: now(), updated_at: now() },
+        { id: 'm-eier', owner_id: S, title: 'Eierspeise mit Proteintoast', grams: 250, kcal: 520, protein: 46, fat: 31, carbs: 15, recipe_id: null, fav: false, items: [{ name: 'Ei', label: '3 Stück' }, { name: 'Proteintoast', label: '2 Scheiben' }], created_at: now(), updated_at: now() },
+      ],
       duzio_water: [{ owner_id: S, day: day(0), ml: 1250 }],
       duzio_weights: [-56, -42, -28, -21, -14, -7, 0].map((d, k) => ({ owner_id: S, day: day(d), kg: [75.2, 75.6, 75.9, 76.1, 76.0, 76.4, 76.6][k] })),
       duzio_shopping: [

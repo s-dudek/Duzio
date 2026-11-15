@@ -2,7 +2,7 @@
 
 Persönliche Web-App (PWA) von Simon (Dudek Grafik) zum Kalorienzählen nach dem Vorbild von Yazio: Tagebuch mit Mahlzeiten,
 kcal-Ziel und Makros, Wasser, Gewicht, Lebensmittel (eigene + Open Food Facts, Barcode), Rezepte mit Nährwerten, Einplanen,
-automatische Einkaufsliste. Nur Simon nutzt sie (Daten privat je Konto).
+automatische Einkaufsliste. Gespeichert werden Lebensmittel, Mahlzeiten und Rezepte (je mit Favorit). Nur Simon nutzt sie (Daten privat je Konto).
 Live: https://s-dudek.github.io/Duzio/ (GitHub Pages, Branch `main`). Backend: Supabase-Projekt `gerpilzxolufdnlsltxk`
 (dasselbe wie die Übersicht, gleiche Anmeldung, eigene Tabellen `duzio_*`).
 
@@ -33,7 +33,8 @@ Bei Gestaltungsfragen dort nachsehen (`style.css`, `CLAUDE.md`), Änderungen am 
 - Keine kleinen Beschreibungs-/Hinweistexte auf den Seiten.
 - Module: `core.js` (Zustand, Helfer), `data.js` (Laden/Prüfen/Speichern), `nutri.js` (Bedarf nach Mifflin-St Jeor × Aktivität ± Ziel,
   Summen, Umrechnen), `widgets.js` (kcal-Ring, Makro-Balken, Wasser), `home.js` (Kacheln), `diary.js` (Tagebuch), `food-search.js`
-  (Eintragen: Suche, Menge, Eintrag bearbeiten, kcal direkt), `off.js` (Open Food Facts), `barcode.js` (Kamera: BarcodeDetector des Browsers,
+  (Eintragen: oben Art Lebensmittel/Mahlzeiten/Rezepte, Stern = Favorit, Frühstück/Mittag/Abend/Snacks erst im Mengen-Fenster; Eintrag bearbeiten, kcal direkt),
+  `meals.js` (Mahlzeiten: Ansicht, Editor, `recipeToMeal`), `picker.js` (Lebensmittel-Auswahl in Editoren), `off.js` (Open Food Facts), `barcode.js` (Kamera: BarcodeDetector des Browsers,
   sonst ZXing aus `js/vendor/zxing.js` – nur EAN/UPC, lokal gebündelt mit `npm run zxing`, erst beim Scannen geladen; so geht es auch am iPhone), `foods.js` (Lebensmittel), `recipes.js` (Rezepte, Einplanen,
   Bearbeiten), `shopping.js` (Einkaufsliste, aus dem Plan), `progress.js` (Gewicht, Woche), `profile.js` (Profil & Ziele), `import.js` (Code einfügen),
   `actions.js` (alle Klicks über `data-act`), `render.js`, `nav.js`, `control.js`, `auth.js`, `splash.js`, `loader.js`, `icons.js`.
@@ -41,16 +42,21 @@ Bei Gestaltungsfragen dort nachsehen (`style.css`, `CLAUDE.md`), Änderungen am 
 - Tagebuch-Einträge speichern die Nährwerte als Kopie (ändern sich nicht, wenn das Lebensmittel später geändert wird).
   Einträge an zukünftigen Tagen sind „geplant“ (`planned`): zählen nicht zur Tagessumme, sind Grundlage für „Einkauf → Aus Plan“;
   im Eintrag „Gegessen“ anhaken übernimmt sie.
-- Lebensmittel von Open Food Facts werden beim ersten Eintragen bzw. als Favorit in `duzio_foods` gemerkt (`source: 'off'`).
+- Lebensmittel von Open Food Facts werden beim ersten Eintragen bzw. beim Stern in `duzio_foods` gemerkt (`source: 'off'`).
+- Rezept = alle Details (Zutaten mit Gramm, Schritte, Nährwerte gerechnet). Mahlzeit (`duzio_meals`) = nur Zusammenfassung:
+  Name, Nährwerte und Gewicht je Portion, Bestandteile als Liste (Name + Menge als Text). „Als Mahlzeit“ in der Rezept-Ansicht
+  wandelt eine Portion um (`recipe_id`; nochmal umwandeln aktualisiert sie). Tagebuch-Einträge verweisen mit `food_id`, `recipe_id` bzw. `saved_meal_id`.
+- Bereich Rezepte hat oben den Umschalter Rezepte / Mahlzeiten / Lebensmittel.
 
 ## Code für Rezepte und Lebensmittel
-Simon stellt mit Claude im Chat Rezepte zusammen bzw. schickt ein Rezept-Foto; Claude gibt einen Code aus, den Simon unter
-Rezepte → „Code“ einfügt (`js/import.js`). Gleichnamige Rezepte werden ersetzt. Nährwerte immer **je 100 g**, Menge `g` in Gramm.
+Simon stellt mit Claude im Chat Rezepte oder Mahlzeiten zusammen bzw. schickt ein Rezept-Foto; Claude gibt einen Code aus, den Simon unter
+Rezepte → „Code“ einfügt (`js/import.js`). Gleichnamige Rezepte werden ersetzt. Nährwerte bei Rezept-Zutaten und Lebensmitteln **je 100 g**, bei Mahlzeiten **je Portion** (`g` = Gewicht der Portion).
 Wir kaufen beim Hofer ein: Zutaten/Mengen vorher mit Simon abstimmen.
 ```
 DUZIO {
   "rezepte": [{ "titel", "portionen", "dauer_min", "tags": [], "hinweis", "zubereitung": ["Schritt", …],
                 "zutaten": [{ "name", "g", "einheit": "z. B. 2 Stück", "abteilung", "kcal", "eiweiss", "fett", "kohlenhydrate" }] }],
+  "mahlzeiten": [{ "titel", "g", "kcal", "eiweiss", "fett", "kohlenhydrate", "bestandteile": [{ "name", "menge": "z. B. 200 g" }] }],
   "lebensmittel": [{ "name", "marke", "einheit": "g|ml", "kcal", "eiweiss", "fett", "kohlenhydrate", "zucker", "ballaststoffe", "salz",
                      "portionen": [{ "name", "g" }] }]
 }

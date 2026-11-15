@@ -110,15 +110,18 @@ export const state = {
   profile: null,       // Körperdaten und Ziele (duzio_profile)
   foods: [],           // eigene und gemerkte Lebensmittel
   recipes: [],
+  meals: [],           // gespeicherte Mahlzeiten (Zusammenfassung je Portion)
   entries: [],         // Tagebuch (geladener Zeitraum, siehe data.js)
   water: {},           // Tag -> ml
   weights: [],         // [{ day, kg }] aufsteigend
   shopping: [],
   tab: 'home',
   day: null,           // gezeigter Tag im Tagebuch (YYYY-MM-DD, null = heute)
-  recipeFilter: '',
+  recipeFilter: 'recipes',   // Bereich Rezepte: 'recipes' | 'meals' | 'foods'
+  addKind: 'foods',          // Eintragen: zuletzt gewählte Art
   loaded: false,
 };
 
 export const foodById = (id) => state.foods.find((f) => f.id === id);
 export const recipeById = (id) => state.recipes.find((r) => r.id === id);
+export const mealById = (id) => state.meals.find((m) => m.id === id);

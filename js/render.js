@@ -58,9 +58,11 @@ function actionsFor(tab) {
   if (tab === 'diary') {
     return `${actBtn('day', 'chevL', 'Tag zurück', { id: '-1', text: false })}<button class="dk wk-now" data-act="day" data-id="0"><span>${esc(dayLabel(day))}</span></button>${actBtn('day', 'chevR', 'Tag vor', { id: '1', text: false })}${actBtn('add', 'plus', 'Eintragen', { primary: true, text: isDesktop() })}`;
   }
-  if (tab === 'recipes') return state.recipeFilter === 'foods'
-    ? actBtn('new-food', 'plus', 'Lebensmittel', { primary: true })
-    : `${actBtn('import', 'copy', 'Code')}${actBtn('new-recipe', 'plus', 'Rezept', { primary: true })}`;
+  if (tab === 'recipes') {
+    if (state.recipeFilter === 'foods') return actBtn('new-food', 'plus', 'Lebensmittel', { primary: true });
+    if (state.recipeFilter === 'meals') return `${actBtn('import', 'copy', 'Code')}${actBtn('new-meal', 'plus', 'Mahlzeit', { primary: true })}`;
+    return `${actBtn('import', 'copy', 'Code')}${actBtn('new-recipe', 'plus', 'Rezept', { primary: true })}`;
+  }
   if (tab === 'shopping') return `${actBtn('shop-plan', 'calendar', 'Aus Plan')}${actBtn('shop-clear', 'trash', 'Erledigte löschen', { text: false })}`;
   if (tab === 'progress') return actBtn('weight', 'scale', 'Gewicht eintragen', { primary: true });
   return '';

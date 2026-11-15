@@ -119,3 +119,30 @@ begin
     execute format('grant select, insert, update, delete on public.%I to authenticated', t);
   end loop;
 end $$;
+
+-- ---------------------------------------------------------------------------
+-- 15.11.2026: Mahlzeiten – gespeicherte Zusammenfassung (Nährwerte je Portion, Bestandteile als Liste),
+-- auch aus einem Rezept umgewandelt (recipe_id). Tagebuch-Einträge verweisen mit saved_meal_id darauf.
+create table if not exists public.duzio_meals (
+  id          uuid primary key,
+  owner_id    uuid not null references auth.users(id) on delete cascade default auth.uid(),
+  title       text not null check (char_length(title) between 1 and 160),
+  grams       numeric not null default 0 check (grams between 0 and 10000),   -- Gewicht einer Portion (0 = unbekannt)
+  kcal        numeric not null default 0 check (kcal between 0 and 10000),    -- je Portion
+  protein     numeric not null default 0 check (protein between 0 and 1000),
+  fat         numeric not null default 0 check (fat between 0 and 1000),
+  carbs       numeric not null default 0 check (carbs between 0 and 1000),
+  items       jsonb not null default '[]',                                     -- [{ "name", "label" }]
+  recipe_id   uuid references public.duzio_recipes(id) on delete set null,
+  fav         boolean not null default false,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create index if not exists duzio_meals_owner on public.duzio_meals (owner_id);
+alter table public.duzio_meals enable row level security;
+drop policy if exists "eigene Zeilen" on public.duzio_meals;
+create policy "eigene Zeilen" on public.duzio_meals for all to authenticated
+  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
+revoke all on public.duzio_meals from anon;
+grant select, insert, update, delete on public.duzio_meals to authenticated;
+alter table public.duzio_entries add column if not exists saved_meal_id uuid references public.duzio_meals(id) on delete set null;

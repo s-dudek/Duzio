@@ -582,7 +582,8 @@ body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 
 /* ==========================================================================
    Eintragen – Suche, Ergebnisse, Menge
    ========================================================================== */
-.fs-meals { margin-bottom: 12px; }
+.fs-meals, .fs-kinds { margin-bottom: 12px; }
+.fs-kinds button { flex: 1; justify-content: center; padding: 9px 4px; font-size: 15px; }
 .fs-meals button { flex: 1; justify-content: center; padding: 8px 4px; font-size: 14px; }
 .fs-bar { display: flex; align-items: center; gap: 8px; }
 .fs-search { flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 14px; height: 46px; border-radius: 999px; background: var(--white); box-shadow: inset 0 0 0 1.5px var(--soft); color: var(--grey); }
@@ -597,13 +598,20 @@ body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 
 .fs-list { flex: 1; overflow-y: auto; margin: 0 -4px; padding: 0 4px; }
 .fs-h { margin: 14px 2px 4px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--grey); }
 .fs-wait { padding: 12px 4px; color: var(--grey); font-size: 14px; }
-.fr { display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 4px; text-align: left; border-bottom: 1px solid var(--pale); }
+.fr { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 4px; text-align: left; border-bottom: 1px solid var(--pale); }
 .fr:last-child { border-bottom: 0; }
-.fr:active { background: var(--pale); }
+.fr-main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; text-align: left; padding: 2px 0; }
+button.fr:active, .fr-main:active { background: var(--pale); }
 .fr > svg { width: 18px; height: 18px; color: var(--grey); flex: none; }
+.fr-star { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: var(--soft); }
+.fr-star svg { width: 19px; height: 19px; }
+.fr-star.on { color: #C9A227; }
+.fr-star.on svg path { fill: currentColor; }
+.fr-star:active { background: var(--pale); }
 .fr-ic { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; background: color-mix(in srgb, #7FA08A 18%, var(--white)); color: #4E7569; }
 .fr-ic svg { width: 18px; height: 18px; }
 .fr-ic.rec { background: color-mix(in srgb, #7A5AA6 15%, var(--white)); color: #7A5AA6; }
+.fr-ic.meal { background: color-mix(in srgb, #3E7CA8 14%, var(--white)); color: #3E7CA8; }
 .fr-ic.off { background: color-mix(in srgb, #D9873E 15%, var(--white)); color: #B86A26; }
 .fr-t { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
 .fr-t b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -638,9 +646,12 @@ body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; height: 
 .rc-h b { flex: 1; font-size: 17px; font-weight: 700; line-height: 1.25; }
 .rc-fav { color: #C9A227; }
 .rc-fav svg { width: 18px; height: 18px; }
+.rc-fav svg path, .chip.on svg path { fill: currentColor; }
 .rc-k { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: var(--mid); }
 .rc-k b { color: var(--ink); font-size: 16px; }
 .rc-k svg { width: 14px; height: 14px; margin-left: 4px; }
+.rc-items { font-size: 13px; color: var(--grey); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.me-pend { display: grid; grid-template-columns: minmax(0, 1fr) 80px auto auto; align-items: center; gap: 6px; margin: 8px 0; padding: 8px 10px; border-radius: 16px; background: var(--pale); }
 .rc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .rv-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 4px 2px 14px; }
 .rv-k { display: flex; flex-direction: column; line-height: 1.1; }

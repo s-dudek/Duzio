@@ -1,6 +1,6 @@
 // Speichert die App-Dateien, damit sie auch bei schlechtem Netz schnell startet.
 // Bei jeder neuen Version die Nummer erhöhen und neue Dateien in FILES eintragen.
-const CACHE = 'duzio-v2';
+const CACHE = 'duzio-v3';
 const FILES = [
   './', 'index.html', 'style.css', 'config.js', 'manifest.json',
   'icons/icon-192.png', 'icons/apple-touch-icon.png',
@@ -21,7 +21,9 @@ const FILES = [
   'js/main.js',
   'js/nav.js',
   'js/nutri.js',
+  'js/meals.js',
   'js/off.js',
+  'js/picker.js',
   'js/profile.js',
   'js/progress.js',
   'js/recipes.js',

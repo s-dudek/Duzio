@@ -7,21 +7,32 @@ import { foodListHtml } from './foods.js';
 import { openAmount } from './food-search.js';
 import { ICON } from './icons.js';
 import { MACROS, MEALS, recipeTotals } from './nutri.js';
-import { searchOff } from './off.js';
+import { pickerHtml, wirePicker } from './picker.js';
 import { render } from './render.js';
 import { closeSheet, openSheet, sheetHead, stepper, wireSteppers } from './sheet.js';
+import { mealListHtml, recipeToMeal } from './meals.js';
 import { guessAisle, mergeIntoShopping, recipeItems } from './shopping.js';
 
 let query = '';
-state.recipeFilter = store('recipeTab') === 'foods' ? 'foods' : 'recipes';
+const TABS = [['recipes', 'Rezepte', 'Rezept oder Tag suchen'], ['meals', 'Mahlzeiten', 'Mahlzeit suchen'], ['foods', 'Lebensmittel', 'Lebensmittel suchen']];
+const tabOk = (k) => (TABS.some(([t]) => t === k) ? k : 'recipes');
+state.recipeFilter = tabOk(store('recipeTab'));
 
-const macroLine = (v) => MACROS.map(([k, l, c]) => `<span style="--mc:${c}"><i></i>${fmt(v[k])} g ${l.slice(0, 1)}</span>`).join('');
+export const macroLine = (v) => MACROS.map(([k, l, c]) => `<span style="--mc:${c}"><i></i>${fmt(v[k])} g ${l.slice(0, 1)}</span>`).join('');
 
+// Bereich Rezepte: Umschalter Rezepte / Mahlzeiten / Lebensmittel, Suche, Liste (Favoriten zuerst)
 export function renderRecipes() {
-  const foods = state.recipeFilter === 'foods';
-  const s = query.toLowerCase();
+  const tab = state.recipeFilter;
+  return `<div class="seg-view rc-seg">${TABS.map(([k, l]) => `<button data-act="recipe-tab" data-id="${k}" class="${k === tab ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <label class="fs-search card">${ICON.search}<input id="rc-q" type="search" placeholder="${TABS.find(([k]) => k === tab)[2]}" value="${esc(query)}" autocomplete="off"></label>
+    <div id="rc-list">${tab === 'foods' ? foodListHtml(query) : tab === 'meals' ? mealListHtml(query) : recipeListHtml(query)}</div>`;
+}
+
+function recipeListHtml(q) {
+  const s = q.toLowerCase();
   const list = state.recipes.filter((r) => !s || r.title.toLowerCase().includes(s) || r.tags.some((t) => t.toLowerCase().includes(s)))
     .sort((a, b) => b.fav - a.fav || a.title.localeCompare(b.title, 'de'));
+  if (!list.length) return `<p class="empty">${s ? 'Nichts gefunden.' : 'Noch keine Rezepte. Lege eines an oder füge einen Code aus dem Chat ein.'}</p>`;
   const card = (r) => {
     const { per } = recipeTotals(r);
     return `<button class="card rc" data-act="recipe" data-id="${esc(r.id)}">
@@ -30,10 +41,7 @@ export function renderRecipes() {
       <span class="mline">${macroLine(per)}</span>
       ${r.tags.length ? `<span class="rc-tags">${r.tags.map((t) => `<span class="utag light">${esc(t)}</span>`).join('')}</span>` : ''}</button>`;
   };
-  return `<div class="seg-view rc-seg"><button data-act="recipe-tab" data-id="recipes" class="${foods ? '' : 'on'}">Rezepte</button><button data-act="recipe-tab" data-id="foods" class="${foods ? 'on' : ''}">Meine Lebensmittel</button></div>
-    <label class="fs-search card">${ICON.search}<input id="rc-q" type="search" placeholder="${foods ? 'Lebensmittel suchen' : 'Rezept oder Tag suchen'}" value="${esc(query)}" autocomplete="off"></label>
-    <div id="rc-list">${foods ? foodListHtml(query) : list.length ? `<div class="rgrid">${list.map(card).join('')}</div>`
-      : `<p class="empty">${s ? 'Nichts gefunden.' : 'Noch keine Rezepte. Lege eines an oder füge einen Code aus dem Chat ein.'}</p>`}</div>`;
+  return `<div class="rgrid">${list.map(card).join('')}</div>`;
 }
 
 // Suche ohne die ganze Seite neu zu zeichnen (Fokus bleibt im Feld)
@@ -47,7 +55,7 @@ export const recipeQuery = debounce((v) => {
 }, 150);
 
 export function setRecipeTab(k) {
-  state.recipeFilter = k === 'foods' ? 'foods' : 'recipes';
+  state.recipeFilter = tabOk(k);
   store('recipeTab', state.recipeFilter);
   render();
 }
@@ -69,6 +77,7 @@ export function openRecipe(id, portions = null) {
         <button class="btn" data-rv="diary">${ICON.diary} Ins Tagebuch</button>
         <button class="btn secondary" data-rv="plan">${ICON.calendar} Einplanen</button>
         <button class="btn secondary" data-rv="shop">${ICON.cart} Einkaufsliste</button>
+        <button class="btn secondary" data-rv="meal">${ICON.fork} Als Mahlzeit</button>
         <button class="chip ${r.fav ? 'on' : ''}" data-rv="fav">${ICON.star} Favorit</button>
       </div>
       <div class="rv-h"><b>Zutaten</b>${stepper('rv-n', n, 1)}<span class="muted">Portionen</span></div>
@@ -80,6 +89,7 @@ export function openRecipe(id, portions = null) {
     sh.querySelector('[data-rv="diary"]').addEventListener('click', () => openAmount({ recipe: r }));
     sh.querySelector('[data-rv="plan"]').addEventListener('click', () => openPlan(r));
     sh.querySelector('[data-rv="shop"]').addEventListener('click', () => { mergeIntoShopping(recipeItems(r, n)); toast(`Zutaten für ${fmt(n)} Portionen auf der Einkaufsliste`); });
+    sh.querySelector('[data-rv="meal"]').addEventListener('click', () => recipeToMeal(r));
     sh.querySelector('[data-rv="fav"]').addEventListener('click', () => { saveRecipe({ ...r, fav: !r.fav }); openRecipe(id, n); });
   };
   draw();
@@ -128,13 +138,11 @@ export function openRecipeEditor(rec = null) {
     </div>
     <div class="field"><label>Zutaten</label>
       <div id="re-ing"></div>
-      <div class="fs-search re-find">${ICON.search}<input id="re-q" type="search" placeholder="Zutat suchen oder eintippen + Enter" autocomplete="off" aria-label="Zutat suchen"></div>
-      <div id="re-res" class="re-res"></div>
+      <div id="re-pk">${pickerHtml('Zutat suchen oder eintippen + Enter')}</div>
       <div class="re-sum" id="re-sum"></div></div>
     <div class="field"><label for="re-steps">Zubereitung (ein Schritt je Zeile)</label><textarea id="re-steps" class="textarea">${esc(r.steps.join('\n'))}</textarea></div>
     <div class="field"><label for="re-note">Notiz</label><textarea id="re-note" class="textarea small">${esc(r.note)}</textarea></div>`, { full: true });
 
-  const picks = new Map();
   const drawIng = () => {
     sh.querySelector('#re-ing').innerHTML = r.ingredients.length ? r.ingredients.map((i, k) => `<div class="re-row" data-k="${k}">
         <span class="re-n"><b>${esc(i.name)}</b><small>${i.kcal ? `${fmt(i.kcal)} kcal / 100 g` : 'ohne Nährwerte'}</small></span>
@@ -149,7 +157,7 @@ export function openRecipeEditor(rec = null) {
     sh.querySelector('#re-sum').innerHTML = `<b>${fmt(per.kcal)} kcal</b> je Portion <span class="mline">${macroLine(per)}</span>`;
   };
   const add = (ing) => { r.ingredients.push({ g: 100, label: '', aisle: guessAisle(ing.name), food_id: null, kcal: 0, protein: 0, fat: 0, carbs: 0, ...ing }); drawIng(); };
-  const fromFood = (f) => ({ name: f.name, food_id: f.id.startsWith('off:') ? null : f.id, kcal: f.kcal, protein: f.protein, fat: f.fat, carbs: f.carbs, g: f.portions[0]?.g || 100 });
+  const fromFood = (f) => ({ name: f.name, food_id: String(f.id).startsWith('off:') ? null : f.id, kcal: f.kcal, protein: f.protein, fat: f.fat, carbs: f.carbs, g: f.portions[0]?.g || 100 });
 
   const $ing = sh.querySelector('#re-ing');
   $ing.addEventListener('input', (e) => {
@@ -166,36 +174,7 @@ export function openRecipeEditor(rec = null) {
   });
   wireSteppers(sh, drawSum);
 
-  // Zutat suchen: eigene Lebensmittel sofort, Open Food Facts nach kurzer Pause
-  const $q = sh.querySelector('#re-q'), $res = sh.querySelector('#re-res');
-  let seq = 0;
-  const resRow = (f) => { picks.set(f.id, f); return `<button type="button" class="fr small" data-ing="${esc(f.id)}"><span class="fr-t"><b>${esc(f.name)}</b><small>${f.brand ? esc(f.brand) + ' · ' : ''}${fmt(f.kcal)} kcal / 100 ${f.unit}</small></span><span class="fr-add">${ICON.plus}</span></button>`; };
-  const showOwn = (q) => state.foods.filter((f) => f.name.toLowerCase().includes(q.toLowerCase())).slice(0, 6).map(resRow).join('');
-  const offSearch = debounce(async (q) => {
-    const my = ++seq;
-    try {
-      const found = await searchOff(q);
-      if (my === seq && $q.value.trim() === q) $res.innerHTML = showOwn(q) + found.slice(0, 10).map(resRow).join('');
-    } catch { /* Open Food Facts nicht erreichbar: eigene bleiben stehen */ }
-  }, 500);
-  $q.addEventListener('input', () => {
-    const q = clean($q.value, 80);
-    picks.clear();
-    $res.innerHTML = q ? showOwn(q) : '';
-    if (q.length >= 3) offSearch(q); else seq++;
-  });
-  $q.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-    const q = clean($q.value, 160);
-    if (q) { add({ name: q }); $q.value = ''; $res.innerHTML = ''; seq++; }
-  });
-  $res.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-ing]'), f = b && picks.get(b.dataset.ing);
-    if (!f) return;
-    add(fromFood(f));
-    $q.value = ''; $res.innerHTML = ''; seq++;
-  });
+  wirePicker(sh.querySelector('#re-pk'), (f) => add(f.id ? fromFood(f) : { name: f.name }));
   drawIng();
 
   sh.querySelector('[data-save]').addEventListener('click', () => {

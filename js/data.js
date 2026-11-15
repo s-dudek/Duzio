@@ -6,7 +6,7 @@ import { render } from './render.js';
 
 const T = {
   profile: 'duzio_profile', foods: 'duzio_foods', recipes: 'duzio_recipes', entries: 'duzio_entries',
-  water: 'duzio_water', weights: 'duzio_weights', shopping: 'duzio_shopping',
+  water: 'duzio_water', weights: 'duzio_weights', shopping: 'duzio_shopping', meals: 'duzio_meals',
 };
 const MEAL_KEYS = ['breakfast', 'lunch', 'dinner', 'snack'];
 export const AISLES = ['Obst & Gemüse', 'Brot & Backwaren', 'Kühlregal', 'Fleisch & Fisch', 'Tiefkühl', 'Trockenware & Konserven', 'Gewürze & Öle', 'Getränke', 'Süßes & Snacks', 'Drogerie & Haushalt', 'Sonstiges'];
@@ -34,9 +34,15 @@ export const cleanRecipe = (r) => ({
   steps: list(r.steps, 60).map((s) => clean(s, 1000)).filter(Boolean), note: clean(r.note, 4000, true), fav: !!r.fav, updated_at: String(r.updated_at || ''),
 });
 
+export const cleanMeal = (m) => ({
+  id: String(m.id), title: clean(m.title) || 'Mahlzeit', grams: num(m.grams, 0, 10000), kcal: num(m.kcal, 0, 10000), protein: num(m.protein, 0, 1000),
+  fat: num(m.fat, 0, 1000), carbs: num(m.carbs, 0, 1000), recipe_id: typeof m.recipe_id === 'string' ? m.recipe_id : null, fav: !!m.fav,
+  items: list(m.items, 40).map((i) => ({ name: clean(i?.name, 120), label: clean(i?.label, 40) })).filter((i) => i.name), updated_at: String(m.updated_at || ''),
+});
+
 const cleanEntry = (e) => ({
   id: String(e.id), day: isDay(e.day) ? e.day : today(), meal: MEAL_KEYS.includes(e.meal) ? e.meal : 'snack', name: clean(e.name, 200) || 'Eintrag',
-  food_id: e.food_id || null, recipe_id: e.recipe_id || null, amount: num(e.amount, 0, 1e5), unit_label: clean(e.unit_label, 40) || 'g',
+  food_id: e.food_id || null, recipe_id: e.recipe_id || null, saved_meal_id: e.saved_meal_id || null, amount: num(e.amount, 0, 1e5), unit_label: clean(e.unit_label, 40) || 'g',
   grams: num(e.grams, 0, 1e5), ...nutr(e), planned: !!e.planned, created_at: String(e.created_at || ''),
 });
 
@@ -68,10 +74,11 @@ export async function loadAll() {
   range.from = addDays(t, -120);
   range.to = addDays(t, 60);
   try {
-    const [prof, foods, recipes, entries, water, weights, shopping] = await busy(Promise.all([
+    const [prof, foods, recipes, meals, entries, water, weights, shopping] = await busy(Promise.all([
       must(sb.from(T.profile).select('*').limit(1)),
       must(sb.from(T.foods).select('*').order('name')),
       must(sb.from(T.recipes).select('*').order('title')),
+      must(sb.from(T.meals).select('*').order('title')),
       must(sb.from(T.entries).select('*').gte('day', range.from).lte('day', range.to).order('created_at')),
       must(sb.from(T.water).select('day,ml').gte('day', range.from).lte('day', range.to)),
       must(sb.from(T.weights).select('day,kg').order('day')),
@@ -81,6 +88,7 @@ export async function loadAll() {
       profile: cleanProfile(prof[0]) || null,
       foods: foods.map(cleanFood),
       recipes: recipes.map(cleanRecipe),
+      meals: meals.map(cleanMeal),
       entries: entries.map(cleanEntry),
       water: Object.fromEntries(water.filter((w) => isDay(w.day)).map((w) => [w.day, num(w.ml, 0, 20000)])),
       weights: weights.filter((w) => isDay(w.day)).map((w) => ({ day: w.day, kg: num(w.kg, 20, 400) })),
@@ -180,6 +188,19 @@ export function saveRecipe(r) {
 export function deleteRecipe(id) {
   state.recipes = state.recipes.filter((r) => r.id !== id);
   return write(sb.from(T.recipes).delete().eq('id', id));
+}
+
+export function saveMeal(m) {
+  const meal = cleanMeal({ ...m, updated_at: new Date().toISOString() });
+  const i = state.meals.findIndex((x) => x.id === meal.id);
+  if (i >= 0) state.meals[i] = meal; else state.meals.push(meal);
+  state.meals.sort((a, b) => a.title.localeCompare(b.title, 'de'));
+  return write(sb.from(T.meals).upsert({ ...meal, owner_id: state.me }));
+}
+
+export function deleteMeal(id) {
+  state.meals = state.meals.filter((m) => m.id !== id);
+  return write(sb.from(T.meals).delete().eq('id', id));
 }
 
 export function setWater(day, ml) {
