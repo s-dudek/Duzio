@@ -68,6 +68,7 @@ Abteilungen: Obst & Gemüse, Brot & Backwaren, Kühlregal, Fleisch & Fisch, Tief
 2. Vorschau mit Beispieldaten: `npm run vorschau` → `demo/duzio-vorschau.html` (nicht im Repo; Login „Demo-Zugang“).
    `demo/mock-supabase.js` bildet Tabellen und Zugriffsregel nach, `demo/off-shim.js` ersetzt Open Food Facts: bei neuen Tabellen mitpflegen.
    Mit Playwright Bildschirmfotos bei 390 px, 820 px und 1280 px prüfen, Konsole auf Fehler.
+   Simons Vorschau ist das Artifact https://claude.ai/artifact/L26frYHttsfJ3uGCsS7Job – mit der neu gebauten Datei aktualisieren (gleiche URL behalten).
 3. In `sw.js` die Nummer bei `CACHE` erhöhen und neue Dateien in `FILES` eintragen.
 4. Committen und auf `main` pushen.
 
