@@ -83,6 +83,8 @@ Abteilungen: Obst & Gemüse, Brot & Backwaren, Kühlregal, Fleisch & Fisch, Tief
 4. Committen und auf `main` pushen.
 
 ## Stand und offene Punkte (November 2026)
-- Version 1: Tagebuch, Eintragen, Open Food Facts, Barcode, Lebensmittel, Rezepte, Einplanen, Einkaufsliste, Fortschritt, Profil, Code-Import.
+- Fertig (15.11.2026): Tagebuch, Eintragen nach Art mit Favoriten, Open Food Facts, Barcode-Scan (auch iPhone), Lebensmittel, Mahlzeiten,
+  Rezepte (inkl. „Als Mahlzeit“), Einplanen, Einkaufsliste aus dem Plan, Fortschritt, Profil & Ziele, Code-Import, eigenes Logo.
+- Live in Betrieb seit 15.11.2026; Supabase-Tabellen `duzio_*` sind angelegt (siehe `supabase-setup.sql`).
 - Ideen für später: Kacheln der Startseite bearbeiten (wie Übersicht), Rezept-Fotos,
   Verbindung zur Übersicht (Wochenplan/Einkauf), Intervallfasten, Aktivitäten/Training als verbrannte kcal.
