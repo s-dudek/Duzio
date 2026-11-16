@@ -146,3 +146,33 @@ create policy "eigene Zeilen" on public.duzio_meals for all to authenticated
 revoke all on public.duzio_meals from anon;
 grant select, insert, update, delete on public.duzio_meals to authenticated;
 alter table public.duzio_entries add column if not exists saved_meal_id uuid references public.duzio_meals(id) on delete set null;
+
+-- ---------------------------------------------------------------------------
+-- 16.11.2026: Apple Health – Schritte und aktive Energie je Tag (Gewicht geht in duzio_weights).
+-- Die Werte schickt ein Kurzbefehl am iPhone an die Edge Function "duzio-health"
+-- (Quelltext: supabase/functions/duzio-health/index.ts). Die App liest sie nur.
+create table if not exists public.duzio_activity (
+  owner_id     uuid not null references auth.users(id) on delete cascade default auth.uid(),
+  day          date not null,
+  steps        integer check (steps between 0 and 200000),
+  active_kcal  numeric check (active_kcal between 0 and 20000),
+  primary key (owner_id, day)
+);
+alter table public.duzio_activity enable row level security;
+drop policy if exists "eigene Zeilen" on public.duzio_activity;
+create policy "eigene Zeilen" on public.duzio_activity for all to authenticated
+  using (owner_id = (select auth.uid())) with check (owner_id = (select auth.uid()));
+revoke all on public.duzio_activity from anon;
+grant select, insert, update, delete on public.duzio_activity to authenticated;
+
+-- Zugangsschlüssel des Kurzbefehls (nur als Hash gespeichert). Keine Zugriffsregel: nur die Edge Function liest ihn.
+create table if not exists public.duzio_health_token (
+  owner_id    uuid primary key references auth.users(id) on delete cascade,
+  token_hash  text not null,
+  created_at  timestamptz not null default now()
+);
+alter table public.duzio_health_token enable row level security;
+revoke all on public.duzio_health_token from anon, authenticated;
+
+-- Aktive Energie zum Tagesziel zählen (aus)
+alter table public.duzio_profile add column if not exists burn_goal boolean not null default false;
